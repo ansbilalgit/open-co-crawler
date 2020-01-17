@@ -12,6 +12,7 @@ namespace OpenCoCrawler
         {
             //ExcelManager.testRead();
             ExcelManager.SortSalesRecords();
+            Console.ReadKey();
         }
     }
 }
