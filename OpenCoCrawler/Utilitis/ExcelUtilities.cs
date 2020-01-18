@@ -101,7 +101,7 @@ namespace OpenCoCrawler.Utilitis
             }
             catch (Exception eX)
             {
-                return false;
+                throw eX;
             }
         }
 

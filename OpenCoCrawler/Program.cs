@@ -9,9 +9,10 @@ namespace OpenCoCrawler
     class Program
     {
         static void Main(string[] args)
-        {
+            {
             //ExcelManager.testRead();
-            ExcelManager.SortSalesRecords();
+            //ExcelManager.SortSalesRecords();
+            ExcelManager.FilterCompaniesRecords();
             Console.ReadKey();
         }
     }
