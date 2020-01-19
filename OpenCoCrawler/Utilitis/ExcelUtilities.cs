@@ -44,8 +44,9 @@ namespace OpenCoCrawler.Utilitis
 
                 return ds;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LoggerUtility.Write("Error Reading File", ex.Message);
 
                 throw;
             }

@@ -36,7 +36,7 @@ namespace OpenCoCrawler
 
                 LoggerUtility.Write("Success", "Sales Record Sorted " + OutputFilePath + outputFileName);
 
-                
+
             }
             catch (Exception ex)
             {
@@ -55,9 +55,9 @@ namespace OpenCoCrawler
             ExcelUtilities.ExportToExcelOleDb(filteredTable, companiesRecordSheet, OutputFilePath, outputFileName, true);
 
             LoggerUtility.Write("Success", "Company Records Sorted " + OutputFilePath + outputFileName);
-            DataTable updatedResults = APIManager.ParseCompaniesData(filteredTable);
+            APIManager.ParseCompaniesData(filteredTable);
 
-            ExcelUtilities.ExportToExcelOleDb(filteredTable, companiesRecordSheet, OutputFilePath, "updatedCompanies.xlsx", true);
+
 
 
         }

@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.489
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCoCrawler", "OpenCoCrawler.csproj", "{783A2C8D-9561-46C8-B1B2-89FF6964C9F4}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "OpenCoCrawlerSetup", "..\OpenCoCrawlerSetup\OpenCoCrawlerSetup.vdproj", "{31F74DCB-71F1-4E6E-9D4C-D84F26221C5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,12 +13,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{783A2C8D-9561-46C8-B1B2-89FF6964C9F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{783A2C8D-9561-46C8-B1B2-89FF6964C9F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{783A2C8D-9561-46C8-B1B2-89FF6964C9F4}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{783A2C8D-9561-46C8-B1B2-89FF6964C9F4}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{783A2C8D-9561-46C8-B1B2-89FF6964C9F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{783A2C8D-9561-46C8-B1B2-89FF6964C9F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31F74DCB-71F1-4E6E-9D4C-D84F26221C5C}.Debug|Any CPU.ActiveCfg = Release
+		{31F74DCB-71F1-4E6E-9D4C-D84F26221C5C}.Debug|Any CPU.Build.0 = Release
+		{31F74DCB-71F1-4E6E-9D4C-D84F26221C5C}.Release|Any CPU.ActiveCfg = Release
+		{31F74DCB-71F1-4E6E-9D4C-D84F26221C5C}.Release|Any CPU.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {91D29FB8-5B7F-460A-B723-2E463E1C9305}
 	EndGlobalSection
 EndGlobal

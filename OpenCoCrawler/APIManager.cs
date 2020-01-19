@@ -4,6 +4,7 @@ using OpenCoCrawler.Models;
 using OpenCoCrawler.Utilitis;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,11 @@ namespace OpenCoCrawler
 {
     public class APIManager
     {
+
+        private static string companiesRecordSheet = ConfigurationManager.AppSettings["CompaniesRecordSheetName"];
+        private static string OutputFilePath = ConfigurationManager.AppSettings["OutputFilePath"];
+        private static string Delay = ConfigurationManager.AppSettings["Delay"];
+
         public static DataTable ParseCompaniesData(DataTable filteredTable)
         {
             DataTable updatedTable = new DataTable();
@@ -29,13 +35,18 @@ namespace OpenCoCrawler
                     updatedTable.ImportRow(dr);
                     i++;
                     if (isCompanyCrawled)
+                    {
                         Console.WriteLine("Company Data Found :" + row[CompanyEnum.COMPANY_NAME]);
+
+                        ExcelUtilities.ExportToExcelOleDb(updatedTable, companiesRecordSheet, OutputFilePath, "updatedCompanies.xlsx", true);
+                    }
                 }
 
             }
             catch (Exception ex)
             {
                 LoggerUtility.Write("Data Parsing Failed ", ex.Message);
+                ExcelUtilities.ExportToExcelOleDb(updatedTable, companiesRecordSheet, OutputFilePath, "updatedCompanies.xlsx", true);
             }
             return updatedTable;
         }
@@ -47,7 +58,8 @@ namespace OpenCoCrawler
             try
 
             {
-                string t = " A J Potter Investments, Llc";
+                //string t = "Grubstake, Llc";
+                //string searchQuery = "http://api.opencorporates.com/v0.4/companies/search?q=" + t.ToString().Replace(' ', '+');
                 string searchQuery = "http://api.opencorporates.com/v0.4/companies/search?q=" + dr[CompanyEnum.COMPANY_NAME].ToString().Replace(' ', '+');
                 string companyListString = HTTPUtility.getStringFromUrl(searchQuery);
 
@@ -59,30 +71,37 @@ namespace OpenCoCrawler
                     if (selectedCompany != null)
                     {
 
-                        Thread.Sleep(3000);
+                        int _delay = 2;
+                        int.TryParse(Delay, out _delay);
+                        _delay = _delay == 0 ? 2 * 1000 : _delay * 1000;
+
+                        Thread.Sleep(_delay);
                         string coQuery = "http://api.opencorporates.com/v0.4/companies/" + selectedCompany.jurisdiction_code + "/" + selectedCompany.company_number;
 
                         string companyResultString = HTTPUtility.getStringFromUrl(coQuery);
-                        Thread.Sleep(3000);
+                        Thread.Sleep(_delay);
                         var companyResultResponse = JsonConvert.DeserializeObject<JsonResponseCompanyResult>(companyResultString);
-                        var companyData = companyResultResponse.results.company;
+                        if (companyResultResponse != null)
+                        {
+                            var companyData = companyResultResponse.results.company;
 
-                        dr[CompanyEnum.OWNER_F_NAME] = getName(companyData.agent_name, true);
-                        dr[CompanyEnum.OWNER_l_NAME] = getName(companyData.agent_name, false);
-                        dr[CompanyEnum.OWNER_ADDR] = companyData.registered_address != null ? companyData.registered_address.street_address : companyData.registered_address_in_full;
-                        dr[CompanyEnum.OWNER_CITY] = companyData.registered_address?.locality ?? "";
-                        int z = 0000;
-                        int.TryParse(companyData.registered_address?.postal_code, out z);
-                        dr[CompanyEnum.OWNER_STATE] = companyData.registered_address?.region ?? "";
-                        dr[CompanyEnum.OWNER_ZIP] = z;
-                        string mailDescription = string.IsNullOrEmpty(getMailAddr(companyData)) ? companyData.registered_address_in_full ?? "" : getMailAddr(companyData);
-                        dr[CompanyEnum.MAIL_ADDR] = mailDescription;
-                        dr[CompanyEnum.MAIL_UNIT] = getMailUnits(mailDescription, 1);
-                        dr[CompanyEnum.MAIL_CITY] = getMailUnits(mailDescription, 2);
-                        dr[CompanyEnum.MAIL_STATE] = getMailUnits(mailDescription, 3);
-                        dr[CompanyEnum.MAIL_ZIP] = getMailUnits(mailDescription, 4);
+                            dr[CompanyEnum.OWNER_F_NAME] = getName(companyData.agent_name, true);
+                            dr[CompanyEnum.OWNER_l_NAME] = getName(companyData.agent_name, false);
+                            dr[CompanyEnum.OWNER_ADDR] = companyData.registered_address != null ? companyData.registered_address.street_address : companyData.registered_address_in_full;
+                            dr[CompanyEnum.OWNER_CITY] = companyData.registered_address?.locality ?? "";
+                            int z = 0000;
+                            int.TryParse(companyData.registered_address?.postal_code, out z);
+                            dr[CompanyEnum.OWNER_STATE] = companyData.registered_address?.region ?? "";
+                            dr[CompanyEnum.OWNER_ZIP] = z;
+                            string mailDescription = string.IsNullOrEmpty(getMailAddr(companyData)) ? companyData.registered_address_in_full ?? "" : "";
+                            dr[CompanyEnum.MAIL_ADDR] = mailDescription;
+                            dr[CompanyEnum.MAIL_UNIT] = getMailUnits(mailDescription, 1);
+                            dr[CompanyEnum.MAIL_CITY] = getMailUnits(mailDescription, 2);
+                            dr[CompanyEnum.MAIL_STATE] = getMailUnits(mailDescription, 3);
+                            dr[CompanyEnum.MAIL_ZIP] = getMailUnits(mailDescription, 4);
 
-                        isCompanyCrawled = true;
+                            isCompanyCrawled = true;
+                        }
                     }
 
                 }
@@ -93,7 +112,7 @@ namespace OpenCoCrawler
                 LoggerUtility.Write("Failed to crawl " + row["company name"].ToString(), ex.Message);
                 isCompanyCrawled = false;
             }
-            return dr; ;
+            return dr;
         }
 
         private static int? GetPostalCode(string postal_code)
@@ -159,7 +178,7 @@ namespace OpenCoCrawler
                 if (mostRecent != null)
                 {
 
-                    var datum = mostRecent.FirstOrDefault(mr => mr.datum != null && mr.datum.title == CompanyEnum.MAILING_ADDR).datum;
+                    var datum = mostRecent.FirstOrDefault(mr => mr.datum != null && mr.datum.title.ToLower().Contains("address"))?.datum;
                     if (datum != null)
                     {
                         mail = datum.description;

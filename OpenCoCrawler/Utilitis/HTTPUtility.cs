@@ -10,18 +10,31 @@ namespace OpenCoCrawler.Utilitis
 {
     public class HTTPUtility
     {
+        private static ProxyManager pm = new ProxyManager();
+        private static List<ProxyModel> proxyList = pm.GetProxyList();
+        private static int count = 0;
+
         public static string getStringFromUrl(string Url)
         {
             string json = string.Empty;
             try
             {
-                using (WebClient wc = new WebClient())
+                if (count < proxyList.Count())
                 {
-                    //WebProxy webProxy = new WebProxy("http://154.0.233:8080/");
-                    //wc.Proxy = webProxy;
-                    var str = wc.DownloadString(Url);
+                    using (WebClient wc = new WebClient())
+                    {
+                        ProxyModel p = proxyList[count];
+                        WebProxy webProxy = new WebProxy(p.IP, p.Port);
 
-                    json = JObject.Parse(str).ToString();
+                        wc.Proxy = webProxy;
+                        var str = wc.DownloadString(Url);
+
+                        json = JObject.Parse(str).ToString();
+                    }
+                }
+                else
+                {
+                    _updateProxyList();
                 }
             }
             catch (Exception ex)
@@ -29,8 +42,22 @@ namespace OpenCoCrawler.Utilitis
             {
 
                 LoggerUtility.Write(ex.Message, Url);
+                count++;
+                if (count >= proxyList.Count)
+                    _updateProxyList();
+
+                LoggerUtility.Write("Changing IP to ", proxyList[count].IP);
+                return getStringFromUrl(Url);
             }
             return json;
+        }
+
+        private static void _updateProxyList()
+        {
+            LoggerUtility.Write("Proxy List Ended", "Updating List");
+            proxyList = pm.UpdateProxyList();
+            count = 0;
+
         }
     }
 }
